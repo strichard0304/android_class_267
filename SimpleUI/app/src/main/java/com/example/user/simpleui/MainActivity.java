@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
-        checkBox = (CheckBox)findViewById(R.id.chechBox);
+        checkBox = (CheckBox)findViewById(R.id.checkBox);
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
