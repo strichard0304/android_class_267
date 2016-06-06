@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         listView = (ListView)findViewById(R.id.listView);
         setupListView();
         radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
-        storeSpinner = (Spinner) findViewI(R.id.spinner);
+        storeSpinner = (Spinner) findViewById(R.id.spinner);
         setupSpinner();
         //radioGroup.setOnCheckedChangeListener();
 
