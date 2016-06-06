@@ -12,11 +12,18 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RadioGroup;
+import android.widget.SimpleAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -28,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
     RadioGroup radioGroup;
     String drinkName = "Black Tea";
     ListView listView;
+    ArrayList<Order> orders = new ArrayList<>();
+    Spinner storeSpinner;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -41,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
         listView = (ListView)findViewById(R.id.listView);
         setupListView();
         radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
+        storeSpinner = (Spinner) findViewI(R.id.spinner);
+        setupSpinner();
         //radioGroup.setOnCheckedChangeListener();
 
         //radioGroup.setOnCheckedChangeListener((group, checkedId){
@@ -70,9 +81,25 @@ public class MainActivity extends AppCompatActivity {
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
+    void setupSpinner(){
+        String[] data = getResources().getStringArray(R.array.storeInfo);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, data);
+        storeSpinner.setAdapter(adapter);
+    }
     void setupListView(){
-        String[] data = new String[]{"123","456","789","Hello","ListView","Hi"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,data);
+//        String[] data = new String[]{"123","456","789","Hello","ListView","Hi"};
+//        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,data);
+        List<Map<String,String>> data = new ArrayList<>();
+        for(int i=0;i<orders.size();i++){
+            Order order = orders.get(i);
+            Map<String,String> item = new HashMap<>();
+            item.put("note", order.note);
+            item.put("drinkName", order.drinkName);
+            data.add(item);
+        }
+        String[] from = {"note","drinkName"};
+        int[] to = {R.id.noteTextView, R.id.drinkTextView};
+        SimpleAdapter adapter = new SimpleAdapter(this, data, R.layout.listview_order_item, from, to);
         listView.setAdapter(adapter);
     }
 
