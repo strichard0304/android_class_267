@@ -87,4 +87,14 @@
         android:layout_below="@+id/editText"
         android:layout_toEndOf="@+id/button"
         android:layout_alignLeft="@+id/editText" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Menu"
+        android:id="@+id/button3"
+        android:layout_above="@+id/radioGroup"
+        android:layout_toRightOf="@+id/button"
+        android:layout_toEndOf="@+id/button"
+        android:onClick="goToMenu" />
 </RelativeLayout>
