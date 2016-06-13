@@ -28,6 +28,7 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
+    static final int REQUEST_CODE_DRINK_MENU_ACTIVITY = 0;
     TextView textView;
     EditText editText;
     //String selectedSex = "Male";
@@ -47,6 +48,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //final int REQUEST_CODE_DRINK_MENU_ACTIVITY = 0;
+
         setContentView(R.layout.activity_main);
         listView = (ListView)findViewById(R.id.listView);
         setupListView();
@@ -87,6 +91,17 @@ public class MainActivity extends AppCompatActivity {
         intent.setClass(this, DrinkMenuActivity.class);
         startActivity(intent);
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode==REQUEST_CODE_DRINK_MENU_ACTIVITY){
+            if(resultCode==RESULT_OK){
+                textView.setText(data.getStringExtra("results"));
+            }
+        }
+    }
+
     void setupSpinner(){
         String[] data = getResources().getStringArray(R.array.storeInfo);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, data);

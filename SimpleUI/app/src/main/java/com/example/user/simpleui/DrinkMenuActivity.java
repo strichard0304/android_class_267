@@ -1,11 +1,15 @@
 package com.example.user.simpleui;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -33,8 +37,8 @@ public class DrinkMenuActivity extends AppCompatActivity {
         drinkListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                DrinkAdapter drinkAdapter = (DrinkAdapter)parent.getAdapter();
-                Drink drink = (Drink)drinkAdapter.getItem(position);
+                DrinkAdapter drinkAdapter = (DrinkAdapter) parent.getAdapter();
+                Drink drink = (Drink) drinkAdapter.getItem(position);
                 drinkOrders.add(drink);
                 updateTotalPrice();
             }
@@ -50,6 +54,18 @@ public class DrinkMenuActivity extends AppCompatActivity {
     public void setupListView(){
         DrinkAdapter adapter = new DrinkAdapter(this, drinks);
         drinkListView.setAdapter(adapter);
+    }
+    public void done(View view){ // back to last layout just by intent
+        Intent intent = new Intent();
+        //convert to json to goback last layout
+        JSONArray array = new JSONArray();
+        for(Drink drink: drinkOrders){
+            JSONObject object = drink.getData();
+            array.put(object);
+        }
+        intent.putExtra("results", array.toString());
+        setResult(RESULT_OK, intent);
+        finish();
     }
     private void setData(){
         for(int i=0;i<4;i++){
