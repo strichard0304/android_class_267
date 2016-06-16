@@ -1,5 +1,7 @@
 package com.example.user.simpleui;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,7 +15,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class DrinkMenuActivity extends AppCompatActivity {
+public class DrinkMenuActivity extends AppCompatActivity implements DrinkOrderDialog.OnFragmentInteractionListener {
     ListView drinkListView;
     TextView priceTextView;
 
@@ -37,12 +39,23 @@ public class DrinkMenuActivity extends AppCompatActivity {
         drinkListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                DrinkAdapter drinkAdapter = (DrinkAdapter) parent.getAdapter();
-                Drink drink = (Drink) drinkAdapter.getItem(position);
-                drinkOrders.add(drink);
-                updateTotalPrice();
+                //DrinkAdapter drinkAdapter = (DrinkAdapter) parent.getAdapter();
+                //Drink drink = (Drink) drinkAdapter.getItem(position);
+                //drinkOrders.add(drink);
+                //updateTotalPrice();
+                Drink drink = (Drink)parent.getAdapter().getItem(position);
+                ShowDetailDrinkMenu(drink);
             }
         });
+    }
+    private void ShowDetailDrinkMenu(Drink drink){
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction ft = fragmentManager.beginTransaction();
+        DrinkOrderDialog orderDialog = DrinkOrderDialog.newInstance("","");
+        //ft.replace(R.id.root, orderDialog);
+        //ft.addToBackStack(null);
+        //ft.commit(); // mark 這三行, 改成以下
+        orderDialog.show(ft,"DrinkOrderDialog");
     }
     private void updateTotalPrice(){
         int total = 0;
