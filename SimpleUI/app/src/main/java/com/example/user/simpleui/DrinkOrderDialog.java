@@ -1,7 +1,11 @@
 package com.example.user.simpleui;
 
+import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 //import android.support.v4.app.Fragment; //改成以下
@@ -9,6 +13,7 @@ import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.NumberPicker;
 
 
 /**
@@ -27,8 +32,9 @@ public class DrinkOrderDialog extends DialogFragment {
     private static final String ARG_PARAM2 = "param2";
 
     // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    //private String mParam1;
+    //private String mParam2; //改成以下
+    private DrinkOrder drinkOrder;
 
     private OnFragmentInteractionListener mListener;
 
@@ -45,29 +51,67 @@ public class DrinkOrderDialog extends DialogFragment {
      * @return A new instance of fragment DrinkOrderDialog.
      */
     // TODO: Rename and change types and number of parameters
-    public static DrinkOrderDialog newInstance(String param1, String param2) {
+    //public static DrinkOrderDialog newInstance(String param1, String param2) { //改成以下
+    public static DrinkOrderDialog newInstance(DrinkOrder drinkOrder) {
         DrinkOrderDialog fragment = new DrinkOrderDialog();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        //args.putString(ARG_PARAM1, param1);
+        args.putString(ARG_PARAM1, drinkOrder.getJsonObject().toString());
+        //args.putString(ARG_PARAM2, param2);//沒用到
         fragment.setArguments(args);
         return fragment;
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
+//    @Override
+//    public void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        if (getArguments() != null) {
+//            //mParam1 = getArguments().getString(ARG_PARAM1);
+//            String data = getArguments().getString(ARG_PARAM1);
+//            drinkOrder = DrinkOrder.newInstanceWithJsonObject(data);
+//            //mParam2 = getArguments().getString(ARG_PARAM2); //沒用到
+//        }
+//    }
 
+//    @Override
+//    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+//                             Bundle savedInstanceState) {
+//        // Inflate the layout for this fragment
+//        return inflater.inflate(R.layout.fragment_drink_order_dialog, container, false);
+//    } //改成以下
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_drink_order_dialog, container, false);
+    public Dialog onCreateDialog(Bundle savedInstanceState){
+        if (getArguments() != null) {
+            String data = getArguments().getString(ARG_PARAM1);
+            drinkOrder = DrinkOrder.newInstanceWithJsonObject(data);
+        }
+        LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
+        View root = layoutInflater.inflate(R.layout.fragment_drink_order_dialog, null);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+        builder.setView(root)
+                .setTitle(drinkOrder.drinkName)
+                .setPositiveButton("確定", new DialogInterface.OnClickListener() {
+                                     @Override
+                                     public void onClick(DialogInterface dialog, int which) {
+
+                                     }
+                                   }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                     @Override
+                                     public void onClick(DialogInterface dialog, int which) {
+
+                                     }
+                                   });
+        NumberPicker numberPicker1 = (NumberPicker) root.findViewById(R.id.numberPicker1);
+        numberPicker1.setMaxValue(100);
+        numberPicker1.setMinValue(0);
+        numberPicker1.setValue(drinkOrder.mNumber);
+        NumberPicker numberPicker2 = (NumberPicker) root.findViewById(R.id.numberPicker2);
+        numberPicker2.setMaxValue(100);
+        numberPicker2.setMinValue(0);
+        numberPicker2.setValue(drinkOrder.lNumber);
+        return builder.create();
     }
 
     // TODO: Rename method, update argument and hook method into UI event

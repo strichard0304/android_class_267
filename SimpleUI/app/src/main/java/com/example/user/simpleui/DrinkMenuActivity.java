@@ -51,7 +51,14 @@ public class DrinkMenuActivity extends AppCompatActivity implements DrinkOrderDi
     private void ShowDetailDrinkMenu(Drink drink){
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction ft = fragmentManager.beginTransaction();
-        DrinkOrderDialog orderDialog = DrinkOrderDialog.newInstance("","");
+
+        //以json傳參數, 所以先宣告 drinkOrder
+        DrinkOrder drinkOrder = new DrinkOrder();
+        drinkOrder.mPrice = drink.mPrice;
+        drinkOrder.lPrice = drink.lPrice;
+        drinkOrder.drinkName = drink.name;
+        DrinkOrderDialog orderDialog = DrinkOrderDialog.newInstance(drinkOrder);
+
         //ft.replace(R.id.root, orderDialog);
         //ft.addToBackStack(null);
         //ft.commit(); // mark 這三行, 改成以下
