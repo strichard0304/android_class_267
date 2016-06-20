@@ -7,7 +7,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Black Tea"
-        android:id="@+id/drinkTextView"
+        android:id="@+id/noteTextView"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
@@ -17,8 +17,8 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="note"
-        android:id="@+id/noteTextView"
-        android:layout_below="@+id/drinkTextView"
+        android:id="@+id/storeInfoTextView"
+        android:layout_below="@+id/noteTextView"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
@@ -27,8 +27,8 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Store"
-        android:id="@+id/storeTextView"
-        android:layout_below="@+id/noteTextView"
+        android:id="@+id/drinkNumberTextView"
+        android:layout_below="@+id/storeInfoTextView"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 

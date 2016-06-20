@@ -20,7 +20,7 @@ public class DrinkMenuActivity extends AppCompatActivity implements DrinkOrderDi
     TextView priceTextView;
 
     ArrayList<Drink> drinks = new ArrayList<>();
-    ArrayList<Drink> drinkOrders = new ArrayList<>();
+    ArrayList<DrinkOrder> drinkOrders = new ArrayList<>();
     //SET DATA
     String[] names={"冬瓜紅茶","玫瑰鹽奶蓋紅茶","珍珠紅茶拿鐵","紅茶拿鐵"};
     int[] mPrices = {25,35,45,35};
@@ -33,24 +33,54 @@ public class DrinkMenuActivity extends AppCompatActivity implements DrinkOrderDi
         setContentView(R.layout.activity_drink_menu);
         setData();
         //get UI Componet
-        drinkListView = (ListView)findViewById(R.id.drinkTextView);
+        drinkListView = (ListView)findViewById(R.id.noteTextView);
         priceTextView = (TextView)findViewById(R.id.priceTextView);
         setupListView();
         drinkListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //DrinkAdapter drinkAdapter = (DrinkAdapter) parent.getAdapter();
-                //Drink drink = (Drink) drinkAdapter.getItem(position);
+                DrinkAdapter drinkAdapter = (DrinkAdapter) parent.getAdapter();
+                Drink drink = (Drink) drinkAdapter.getItem(position);
                 //drinkOrders.add(drink);
                 //updateTotalPrice();
-                Drink drink = (Drink)parent.getAdapter().getItem(position);
-                ShowDetailDrinkMenu(drink);
+                //Drink drink = (Drink) parent.getAdapter().getItem(position);
+                //ShowDetailDrinkMenu(drink);
+                showDrinkOrderDialog(drink);
             }
         });
     }
-    private void ShowDetailDrinkMenu(Drink drink){
+
+    @Override
+    public void OnDrinkOrderFinished(DrinkOrder drinkOrder){
+        for(int i=0;i<drinkOrders.size();i++){
+            if(drinkOrders.get(i).drinkName.equals(drinkOrder.drinkName)){
+                drinkOrders.set(i, drinkOrder);
+                return;
+            }
+        }
+        drinkOrders.add(drinkOrder);
+        updateTotalPrice();
+    }
+
+    private void showDrinkOrderDialog(Drink drink){
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction ft = fragmentManager.beginTransaction();
+
+        DrinkOrder drinkOrder = new DrinkOrder();
+        boolean flag = false;
+        for(DrinkOrder order: drinkOrders){
+            if(order.drinkName.equals(drink.name)){
+                drinkOrder = order;
+                flag = true;
+                break;
+            }
+        }
+        if(!flag){
+            //drinkOrder = new DrinkOrder();
+            drinkOrder.mPrice = drink.mPrice;
+            drinkOrder.lPrice = drink.lPrice;
+            drinkOrder.drinkName = drink.name;
+        }
 
         //以json傳參數, 所以先宣告 drinkOrder
         DrinkOrder drinkOrder = new DrinkOrder();
@@ -62,12 +92,12 @@ public class DrinkMenuActivity extends AppCompatActivity implements DrinkOrderDi
         //ft.replace(R.id.root, orderDialog);
         //ft.addToBackStack(null);
         //ft.commit(); // mark 這三行, 改成以下
-        orderDialog.show(ft,"DrinkOrderDialog");
+        orderDialog.show(ft, "DrinkOrderDialog");
     }
     private void updateTotalPrice(){
         int total = 0;
-        for(Drink drink: drinkOrders){
-            total += drink.mPrice;
+        for(DrinkOrder order: drinkOrders){
+            total += order.mPrice * order.mNumber;
         }
         priceTextView.setText(String.valueOf(total));
     }
@@ -79,14 +109,15 @@ public class DrinkMenuActivity extends AppCompatActivity implements DrinkOrderDi
         Intent intent = new Intent();
         //convert to json to goback last layout
         JSONArray array = new JSONArray();
-        for(Drink drink: drinkOrders){
-            JSONObject object = drink.getData();
+        for(DrinkOrder order: drinkOrders){
+            JSONObject object = order.getJsonObject();
             array.put(object);
         }
         intent.putExtra("results", array.toString());
         setResult(RESULT_OK, intent);
         finish();
     }
+
     private void setData(){
         for(int i=0;i<4;i++){
             Drink drink = new Drink();

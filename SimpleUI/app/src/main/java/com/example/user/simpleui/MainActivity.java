@@ -1,10 +1,13 @@
 package com.example.user.simpleui;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -39,11 +42,15 @@ public class MainActivity extends AppCompatActivity {
     ListView listView;
     ArrayList<Order> orders = new ArrayList<>();
     Spinner storeSpinner;
+    String menuResult;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
      */
     private GoogleApiClient client;
+
+    SharedPreferences sharedPreferences; //6/20
+    SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +64,9 @@ public class MainActivity extends AppCompatActivity {
         radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
         storeSpinner = (Spinner) findViewById(R.id.spinner);
         setupSpinner();
+        sharedPreferences = getSharedPreferences("setting", Context.MODE_PRIVATE);
+        editor = sharedPreferences.edit();
+
         //radioGroup.setOnCheckedChangeListener();
 
         //radioGroup.setOnCheckedChangeListener((group, checkedId){
@@ -66,9 +76,13 @@ public class MainActivity extends AppCompatActivity {
         textView = (TextView) findViewById(R.id.TestView);
         textView.setText("Hello TextView");
         editText = (EditText) findViewById(R.id.editText);
+        editText.setText(sharedPreferences.getString("editText", "")); //下次開啟, 可以讀入
         editText.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
+                String text = editText.getText().toString();
+                editor.putString("editText",text);
+                editor.apply();
 
 
                 return false;
@@ -85,6 +99,24 @@ public class MainActivity extends AppCompatActivity {
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+        textView.setText(sharedPreferences.getString("textView",""));
+        textView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                editor.putString("textView", s.toString());
+                editor.apply();
+            }
+        });
     }
     public void goToMenu(View view){
         Intent intent = new Intent();
@@ -115,11 +147,12 @@ public class MainActivity extends AppCompatActivity {
             Order order = orders.get(i);
             Map<String,String> item = new HashMap<>();
             item.put("note", order.note);
-            item.put("drinkName", order.drinkName);
+            //item.put("drinkName", order.drinkName);
+            item.put("drinkName", order.menuResults);
             data.add(item);
         }
         String[] from = {"note","drinkName"};
-        int[] to = {R.id.noteTextView, R.id.drinkTextView};
+        int[] to = {R.id.storeInfoTextView, R.id.noteTextView};
         SimpleAdapter adapter = new SimpleAdapter(this, data, R.layout.listview_order_item, from, to);
         listView.setAdapter(adapter);
     }
