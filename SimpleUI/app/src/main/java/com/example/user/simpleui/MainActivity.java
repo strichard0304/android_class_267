@@ -58,14 +58,19 @@ public class MainActivity extends AppCompatActivity {
 
         //final int REQUEST_CODE_DRINK_MENU_ACTIVITY = 0;
 
+        Utils.writeFile(this, "history", orders);
+
         setContentView(R.layout.activity_main);
         listView = (ListView)findViewById(R.id.listView);
+
+        sharedPreferences = getSharedPreferences("setting", Context.MODE_PRIVATE);
+        editor = sharedPreferences.edit();
+
+        setupOrdersData(); // 6/20  before setupListView
         setupListView();
         radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
         storeSpinner = (Spinner) findViewById(R.id.spinner);
         setupSpinner();
-        sharedPreferences = getSharedPreferences("setting", Context.MODE_PRIVATE);
-        editor = sharedPreferences.edit();
 
         //radioGroup.setOnCheckedChangeListener();
 
@@ -73,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
         //    RadioButton radioButton = (RadioButton)findViewById(CheckedId);
         //    drinkName = radioButton.getText().toString();
         //});
-        textView = (TextView) findViewById(R.id.TestView);
+        textView = (TextView) findViewById(R.id.textView);
         textView.setText("Hello TextView");
         editText = (EditText) findViewById(R.id.editText);
         editText.setText(sharedPreferences.getString("editText", "")); //下次開啟, 可以讀入
@@ -83,8 +88,6 @@ public class MainActivity extends AppCompatActivity {
                 String text = editText.getText().toString();
                 editor.putString("editText",text);
                 editor.apply();
-
-
                 return false;
             }
         });
@@ -117,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
                 editor.apply();
             }
         });
+
     }
     public void goToMenu(View view){
         Intent intent = new Intent();
@@ -140,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
         storeSpinner.setAdapter(adapter);
     }
     void setupListView(){
+        //setupOrdersData();
 //        String[] data = new String[]{"123","456","789","Hello","ListView","Hi"};
 //        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,data);
         List<Map<String,String>> data = new ArrayList<>();
@@ -155,6 +160,16 @@ public class MainActivity extends AppCompatActivity {
         int[] to = {R.id.storeInfoTextView, R.id.noteTextView};
         SimpleAdapter adapter = new SimpleAdapter(this, data, R.layout.listview_order_item, from, to);
         listView.setAdapter(adapter);
+    }
+    private void setupOrdersData(){
+        String content = Utils.readFile(this, "history");
+        String[] datas = content.split("\n");
+        for(int i=0;i<datas.length;i++){
+            Order order = Order.newInstanceWithData(datas[i]);
+            if(order!=null){
+                orders.add(order);
+            }
+        }
     }
 
     public void click(View view) {
