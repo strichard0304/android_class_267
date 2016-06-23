@@ -3,11 +3,14 @@ package com.example.user.simpleui;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -19,10 +22,15 @@ import android.widget.RadioGroup;
 import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,7 +48,8 @@ public class MainActivity extends AppCompatActivity {
     RadioGroup radioGroup;
     String drinkName = "Black Tea";
     ListView listView;
-    ArrayList<Order> orders = new ArrayList<>();
+    //ArrayList<Order> orders = new ArrayList<>(); // 6/23
+    List<Order> orders = new ArrayList<>();
     Spinner storeSpinner;
     String menuResult;
     /**
@@ -57,8 +66,64 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         //final int REQUEST_CODE_DRINK_MENU_ACTIVITY = 0;
+        ParseObject testObject = new ParseObject("TestObject");
+        testObject.put("foo", "bar");
+        testObject.saveInBackground();
+
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = cm.getActiveNetworkInfo();
+        final FindCallback<Order> callback = new FindCallback<Order>() {
+            @Override
+            public void done(List<Order> objects, ParseException e) {
+                if(e==null) { // check not exception and go on
+                    orders = objects;
+                    setupListView();
+                }
+            }
+        }
+        if(info!=null && info.isConnected()){
+           Order.getOrdersFromRemote(new FindCallback<Order>() {
+               @Override
+               public void done(List<Order> objects, ParseException e) {
+                   if(e!=null){
+                       Toast.makeText(MainActivity.this, "Sync Failed", Toast.LENGTH_LONG).
+                       Order.getQuery().fromLocalDatastore().findInBackground(callback);
+                   }else{
+                       callback.done(objects,e);
+                   }
+               }
+           });
+        }else {
+            Order.getQuery().fromLocalDatastore().findInBackground(callback);
+        }
+
+        ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("TestObject");
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                if(e==null){
+                    for(ParseObject object: objects){
+                        Toast.makeText(MainActivity.this, object.getString("foo"),Toast)
+                    }
+                    //for(int i=0;i<objects.size();i++){
+                    //    Log.i("debug",objects.get(i).toString());
+                    //}
+                }
+            }
+
+            @Override
+            public void done(Object o, Throwable throwable) {
+
+            }
+        })
+
+
 
         Utils.writeFile(this, "history", orders);
+
+        textView.setText(note);
+        menuResult = "";
+        editText.setText("");
 
         setContentView(R.layout.activity_main);
         listView = (ListView)findViewById(R.id.listView);
@@ -151,9 +216,10 @@ public class MainActivity extends AppCompatActivity {
         for(int i=0;i<orders.size();i++){
             Order order = orders.get(i);
             Map<String,String> item = new HashMap<>();
-            item.put("note", order.note);
-            //item.put("drinkName", order.drinkName);
-            item.put("drinkName", order.menuResults);
+            //item.put("note", order.note); // 6/23
+            item.put("note", order.getNote());
+            //item.put("drinkName", order.drinkName);  // 6/23
+            item.put("drinkName", order.getMenuResults());
             data.add(item);
         }
         String[] from = {"note","drinkName"};
@@ -162,14 +228,22 @@ public class MainActivity extends AppCompatActivity {
         listView.setAdapter(adapter);
     }
     private void setupOrdersData(){
-        String content = Utils.readFile(this, "history");
-        String[] datas = content.split("\n");
-        for(int i=0;i<datas.length;i++){
-            Order order = Order.newInstanceWithData(datas[i]);
-            if(order!=null){
-                orders.add(order);
+//        String content = Utils.readFile(this, "history");
+//        String[] datas = content.split("\n");
+//        for(int i=0;i<datas.length;i++){
+//            Order order = Order.newInstanceWithData(datas[i]);
+//            if(order!=null){
+//                orders.add(order);
+//            }
+//        }  // 6/23
+        Order.getQuery().findInBackground(new FindCallback<Order>() {
+            @Override
+            public void done(List<Order> objects, ParseException e) {
+                orders = objects;
+                setupListView();
             }
-        }
+        });
+
     }
 
     public void click(View view) {
